@@ -1,0 +1,4 @@
+/workspaces/.windows/
+*.iso
+*.qcow2
+*.part
