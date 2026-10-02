@@ -1,0 +1,19 @@
+{
+  "name": "Windows 10 (Tiny10) in Codespace",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [6080],
+  "postCreateCommand": "bash scripts/setup.sh",
+  "postStartCommand": "bash scripts/start.sh",
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    }
+  },
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb",
+    "storage": "64gb"
+  }
+}
