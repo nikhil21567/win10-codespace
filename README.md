@@ -1,94 +1,69 @@
-# Windows 10 in GitHub Codespace (Free Tier Optimized)
+# Tiny10 (Lightweight Windows 10) in GitHub Codespace - FREE
 
-> **Important:** Codespaces free tier = 2-core/8GB max. Windows 10 software emulation (TCG) se chalega, thoda slow feel hoga. For true lag-free, check alternatives at the bottom.
+> **NO KVM mode** - TCG software emulation use karta hai. Performance light hai, but boot hota hai reliably.
 
-## Quick Start (Free Tier)
+## Setup (One-time)
 
-1. **Codespace open karo**: Code -> Codespaces -> Create codespace on main
-   - Machine type: **2-core / 8GB RAM** select karo (max for free)
-2. **Setup auto-run hoga** (1-2 min) - Tiny10 ISO download hoga
-3. **Start command** terminal me:
+1. Repo pe jaake **Code -> Codespaces -> Create codespace on main**
+2. Machine type: **2-core / 8GB RAM / 32GB storage** (free tier max)
+3. Codespace open hone ke baad terminal me:
    ```bash
-   bash scripts/start.sh
+   bash scripts/setup.sh    # 1-2 min: ISO + disk download
+   bash scripts/start.sh    # 30-60 sec: Tiny10 boot
    ```
-4. **PORTS tab** me port **6080** ke globe icon pe click karo
-5. Browser me Windows 10 desktop khulega (Tiny10 installer first time)
+4. **PORTS tab** me port `6080` ke globe icon pe click karo
+5. Browser me **Tiny10 installer** khulega (halka wait 15-25 min)
 
-## First Boot (Installer)
+## After Install
 
-- Tiny10 install wizard aayega (~20-35 min on 2-core)
-- Install complete hone ke baad terminal me:
-  ```bash
-  touch /workspaces/.windows/.installed
-  bash scripts/start.sh
-  ```
-- Ab directly Windows desktop boot hoga (~60-90 sec)
-
-## Performance Reality Check (Free Tier 2-core/8GB)
-
-| Task | Performance |
-|------|-------------|
-| Boot Windows | ~60-90 sec |
-| Open Notepad | ~3-5 sec |
-| Open Browser (Edge) | ~15-25 sec |
-| File Explorer | OK |
-| Heavy apps (Chrome, VS Code in Win) | Slow/laggy |
-
-## Truly Lag-Free Alternatives (FREE)
-
-### Oracle Cloud Free Tier (RECOMMENDED) 🚀
-
-- **4 ARM cores + 24GB RAM + 200GB storage = FREE FOREVER**
-- **Real KVM acceleration** (not TCG) = truly smooth Windows 10
-- Setup guide: [Oracle Cloud Free Tier Setup](https://www.oracle.com/cloud/free/)
-
-### Other Options
-
-| Option | Cost | Performance | Setup |
-|--------|------|-------------|-------|
-| Oracle Cloud Free Tier | $0 forever | Smooth (KVM) | Medium |
-| GitHub Codespaces Free | Free | Sluggish (TCG) | Easy (this repo) |
-| GitHub Codespaces Pro ($4/mo) | Paid | Slightly better TCG | Easy |
-| Hetzner CX22 | 4 EUR/mo | Smooth | Easy |
-
-## File Tree
-
+```bash
+touch /workspaces/.windows/.installed
+bash scripts/start.sh
 ```
-win10-codespace/
-├── .devcontainer/
-│   ├── devcontainer.json   # Codespace config + port forward
-│   └── Dockerfile          # Ubuntu + QEMU + noVNC install
-├── scripts/
-│   ├── setup.sh            # One-time: ISO + disk download
-│   └── start.sh            # Every boot: QEMU + noVNC launch
-├── .gitignore
-└── README.md
-```
+Har baar 30-45 sec me Tiny10 boot hoga, smooth.
 
-## Tech Stack
+## Performance (Free Tier, TCG Mode)
 
-- **Tiny10 23H2** - Debloated Windows 10 (~3.5GB ISO)
-- **QEMU TCG** - x86_64 software emulation (no KVM in Codespaces)
-- **noVNC** - Browser-based VNC client
-- **websockify** - VNC to WebSocket bridge
+| Task | Time | Status |
+|------|------|--------|
+| Win10 boot | 30-45 sec | OK |
+| Notepad open | 2-4 sec | OK |
+| File Explorer | OK | OK |
+| Edge browser | 20-30 sec | Laggy |
+| Heavy apps | Hang karenge | Avoid |
 
-## Performance Tips
+## Tips for Smoother Experience
 
-- Free tier = 2-core/2.5GB RAM allocated to Win10 (tight)
-- Browser zoom out karo for better performance
-- Avoid heavy apps - notepad/light apps best chalenge
-- Be patient with installer (20-35 min)
+1. **Boot fast karne ke liye**:
+   - Tiny10 me Fast Startup ON karo (Control Panel -> Power Options)
+   - Visual effects off karo (System Properties -> Advanced -> Performance)
+
+2. **Lag kam karne ke liye**:
+   - Browser me sirf noVNC use karo (Chrome/Edge open mat karo inside)
+   - File operations minimal rakho
+
+3. **Storage full hone pe**:
+   ```bash
+   sudo apt-get clean
+   docker system prune -af
+   rm -rf ~/.cache/*
+   ```
 
 ## Troubleshooting
 
-- **"You must select 16GB RAM for 4-core"**: Use 2-core/8GB machine (free tier max)
-- **Port 6080 not showing**: Terminal me manually `bash scripts/start.sh` chalao
-- **VNC blank screen**: 10-30 sec wait karo QEMU boot hone tak
-- **Out of disk**: 32GB storage Codespace = tight. Cleanup commands:
-  ```bash
-  sudo apt-get clean && docker system prune -af
-  ```
-- **Very slow installer**: Normal hai on 2-core, 20-35 min lagega
+| Problem | Solution |
+|---------|----------|
+| Port 6080 not showing | `bash scripts/start.sh` manually chalao |
+| VNC blank | 30-60 sec wait karo |
+| BSOD | Disk delete karo: `rm /workspaces/.windows/disk.qcow2`, setup.sh phir se chalao |
+| Install hang | Force restart: PORTS tab se kill karo, start.sh phir se chalao |
+
+## Note
+
+- **NO KVM** in Codespaces - TCG software emulation forced hai
+- For true lag-free Windows 10, Oracle Cloud free tier (with KVM) is the only free option
+- Tiny10 = ~2.5GB stripped Win10, runs on 1GB RAM min
+- QEMU RAM allocation: 2GB (tight but works for basic apps)
 
 ## License
 
