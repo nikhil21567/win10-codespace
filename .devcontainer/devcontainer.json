@@ -1,14 +1,22 @@
 {
-  "name": "Windows 10 (Tiny10) in Codespace",
+  "name": "Tiny10 (Windows 10) in Codespace - Auto Boot",
   "build": {
     "dockerfile": "Dockerfile"
   },
   "forwardPorts": [6080],
-  "postCreateCommand": "bash scripts/setup.sh",
-  "postStartCommand": "bash scripts/start.sh",
+  "postCreateCommand": "bash scripts/auto.sh",
+  "postStartCommand": "bash scripts/auto.sh",
   "customizations": {
     "codespaces": {
-      "openFiles": ["README.md"]
+      "openFiles": ["README.md"],
+      "ports": [
+        {
+          "name": "Tiny10 Desktop",
+          "port": 6080,
+          "visibility": "public",
+          "label": "Open Tiny10 Desktop"
+        }
+      ]
     }
   },
   "hostRequirements": {
