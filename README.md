@@ -1,69 +1,82 @@
-# Tiny10 (Lightweight Windows 10) in GitHub Codespace - FREE
+# Tiny10 in Codespace - AUTO MODE ✨
 
-> **NO KVM mode** - TCG software emulation use karta hai. Performance light hai, but boot hota hai reliably.
+> **Koi command nahi chalana. Bas Codespace kholo, Tiny10 ready ho jayega.**
 
-## Setup (One-time)
+## How to Use (3 Steps)
 
-1. Repo pe jaake **Code -> Codespaces -> Create codespace on main**
-2. Machine type: **2-core / 8GB RAM / 32GB storage** (free tier max)
-3. Codespace open hone ke baad terminal me:
-   ```bash
-   bash scripts/setup.sh    # 1-2 min: ISO + disk download
-   bash scripts/start.sh    # 30-60 sec: Tiny10 boot
-   ```
-4. **PORTS tab** me port `6080` ke globe icon pe click karo
-5. Browser me **Tiny10 installer** khulega (halka wait 15-25 min)
+### 1️⃣ Codespace banao
+- Repo page pe jaao → **Code** button → **Codespaces** tab → **Create codespace on main**
+- Machine: **2-core / 8GB RAM / 32GB storage** (free tier max)
 
-## After Install
+### 2️⃣ Wait (2-3 min)
+- Codespace open hoga
+- ISO + disk auto-download hoga
+- QEMU auto-launch hoga
+- Sab terminal me dikhega
 
-```bash
-touch /workspaces/.windows/.installed
-bash scripts/start.sh
-```
-Har baar 30-45 sec me Tiny10 boot hoga, smooth.
+### 3️⃣ Tiny10 Desktop kholo
+- **PORTS** tab pe jaao
+- Port **6080** ke paas **globe icon** pe click karo (ya **Open Tiny10 Desktop** label)
+- Browser me Tiny10 desktop khulega 🎯
 
-## Performance (Free Tier, TCG Mode)
+**That's it. No commands. No setup. Sab automatic.**
 
-| Task | Time | Status |
-|------|------|--------|
-| Win10 boot | 30-45 sec | OK |
-| Notepad open | 2-4 sec | OK |
-| File Explorer | OK | OK |
-| Edge browser | 20-30 sec | Laggy |
-| Heavy apps | Hang karenge | Avoid |
+## First Time vs Next Time
 
-## Tips for Smoother Experience
+| Boot | What Happens |
+|------|--------------|
+| **First time** | Tiny10 installer aayega (~15-25 min wait karo, install complete karo) |
+| **Next time** | Direct Windows desktop boot (30-45 sec) |
 
-1. **Boot fast karne ke liye**:
-   - Tiny10 me Fast Startup ON karo (Control Panel -> Power Options)
-   - Visual effects off karo (System Properties -> Advanced -> Performance)
+Install complete hone ke baad desktop khula rahega, restart kar do bas. Codespace me stored hai sab.
 
-2. **Lag kam karne ke liye**:
-   - Browser me sirf noVNC use karo (Chrome/Edge open mat karo inside)
-   - File operations minimal rakho
+## Features
 
-3. **Storage full hone pe**:
-   ```bash
-   sudo apt-get clean
-   docker system prune -af
-   rm -rf ~/.cache/*
-   ```
+- ✅ Auto ISO download
+- ✅ Auto disk create
+- ✅ Auto noVNC server start
+- ✅ Auto QEMU launch
+- ✅ Auto Windows boot
+- ✅ TCG mode (no KVM needed)
+- ✅ Lightweight (Tiny10 = 2.5GB stripped Win10)
+- ✅ Browser-based desktop access
+
+## Performance
+
+TCG mode hai (no KVM), to expected performance:
+- Boot: 30-45 sec
+- Notepad: 2-4 sec
+- File Explorer: OK
+- Browser in Tiny10: Laggy (avoid)
+- Heavy apps: Hang (avoid)
+
+Light apps like Notepad, Calculator, File Explorer sab smooth chalenge.
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| Port 6080 not showing | `bash scripts/start.sh` manually chalao |
-| VNC blank | 30-60 sec wait karo |
-| BSOD | Disk delete karo: `rm /workspaces/.windows/disk.qcow2`, setup.sh phir se chalao |
-| Install hang | Force restart: PORTS tab se kill karo, start.sh phir se chalao |
+### Port 6080 nahi dikh raha
+- Terminal me dekhna - "PORT TINGO" message aaya hoga
+- PORTS tab me refresh karo (Ctrl+R)
+- Ya "PORTS" ke neeche "Add Port" pe 6080 manually add karo
 
-## Note
+### Tiny10 nahi dikh raha
+- 30-60 sec wait karo (QEMU boot time)
+- Page refresh karo
 
-- **NO KVM** in Codespaces - TCG software emulation forced hai
-- For true lag-free Windows 10, Oracle Cloud free tier (with KVM) is the only free option
-- Tiny10 = ~2.5GB stripped Win10, runs on 1GB RAM min
-- QEMU RAM allocation: 2GB (tight but works for basic apps)
+### Codespace slow hai
+- 2-core/8GB Codespace pe normal hai TCG mode
+- Heavy apps avoid karo
+
+### Disk full
+- Codespace me 32GB storage = tight
+- Codespace ko delete karke naya banao (free tier 30 din tak active)
+
+## Technical
+
+- Tiny10 23H2 ISO (~2.5GB)
+- QEMU TCG mode (no KVM, software emulation)
+- noVNC + websockify (browser VNC client)
+- Ubuntu 22.04 base image
 
 ## License
 
