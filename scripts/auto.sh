@@ -1,27 +1,31 @@
 #!/bin/bash
-# AUTO MODE - Bas Codespace kholo, sab apne aap ho jayega.
-# No commands needed. No setup. No manual steps.
+# Auto-boot Tiny10 - fully automatic, idempotent (safe to run multiple times)
 set +e
 
-WIN_DIR="/workspaces/.windows"
-ISO="$WIN_DIR/tiny10.iso"
-DISK="$WIN_DIR/disk.qcow2"
-INSTALL_FLAG="$WIN_DIR/.installed"
-LOG="$WIN_DIR/qemu.log"
+W="/workspaces/.windows"
+ISO="$W/tiny10.iso"
+DISK="$W/disk.qcow2"
+FLAG="$W/.installed"
+QEMU_LOG="$W/qemu.log"
+NOVNC_LOG="/tmp/novnc.log"
+STATUS="$W/.status"
 
-mkdir -p "$WIN_DIR"
+mkdir -p "$W"
+echo "starting" > "$STATUS"
 
-# ============ PHASE 1: ISO DOWNLOAD ============
+# ===== PHASE 1: ISO DOWNLOAD =====
 if [ ! -f "$ISO" ] || [ "$(stat -c%s "$ISO" 2>/dev/null || echo 0)" -lt 500000000 ]; then
-    echo "[AUTO] ISO download ho raha hai... (1-2 min)"
+    echo "[$(date)] Downloading Tiny10 ISO..."
+    echo "downloading" > "$STATUS"
     for URL in \
         "https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso" \
         "https://archive.org/download/tiny-10-22-h2/tiny10%20x64%2022h2.iso"; do
+        echo "  Trying: $URL"
         if curl -L --retry 3 --max-time 600 -o "$ISO.part" "$URL" 2>/dev/null; then
             SIZE=$(stat -c%s "$ISO.part" 2>/dev/null || echo 0)
             if [ "$SIZE" -gt 500000000 ]; then
                 mv "$ISO.part" "$ISO"
-                echo "[AUTO] ISO ready: $(du -h "$ISO" | cut -f1)"
+                echo "  ISO ready: $(du -h "$ISO" | cut -f1)"
                 break
             fi
         fi
@@ -29,28 +33,35 @@ if [ ! -f "$ISO" ] || [ "$(stat -c%s "$ISO" 2>/dev/null || echo 0)" -lt 50000000
     done
 fi
 
-# ============ PHASE 2: DISK CREATE ============
+# ===== PHASE 2: DISK CREATE =====
 if [ ! -f "$DISK" ]; then
-    echo "[AUTO] Disk ban raha hai (20GB)..."
+    echo "[$(date)] Creating 20GB virtual disk..."
     qemu-img create -f qcow2 "$DISK" 20G
 fi
 
-# ============ PHASE 3: noVNC START ============
+# ===== PHASE 3: KILL OLD PROCESSES =====
+pkill -x qemu-system-x86 2>/dev/null
 pkill -f websockify 2>/dev/null
-websockify --web=/usr/share/novnc 6080 localhost:5900 >/tmp/novnc.log 2>&1 &
+sleep 1
 
-# ============ PHASE 4: QEMU LAUNCH ============
-if [ -f "$INSTALL_FLAG" ]; then
-    # Already installed - boot from disk only
+# ===== PHASE 4: START noVNC =====
+echo "[$(date)] Starting noVNC on port 6080..."
+websockify --web=/usr/share/novnc 6080 localhost:5900 > "$NOVNC_LOG" 2>&1 &
+sleep 2
+
+# ===== PHASE 5: BOOT MODE =====
+if [ -f "$FLAG" ]; then
     BOOT_FLAGS="-boot order=c"
     CDROM=""
+    BOOT_MODE="installed (direct boot)"
 else
-    # First time - boot from ISO
     BOOT_FLAGS="-boot order=dc"
     CDROM="-drive file=$ISO,media=cdrom,readonly=on,if=ide,index=1"
+    BOOT_MODE="first time (installer)"
 fi
 
-# Start QEMU
+# ===== PHASE 6: LAUNCH QEMU =====
+echo "[$(date)] Starting QEMU [$BOOT_MODE]..."
 qemu-system-x86_64 \
     -name "Tiny10" \
     -machine accel=tcg,usb=on \
@@ -65,27 +76,26 @@ qemu-system-x86_64 \
     -global I440FX-pcihost.piix3-4.acpi-memory-hotplug=off \
     -global I440FX-pcihost.piix3-4.acpi-cpu-hotplug=off \
     -usb -device usb-tablet \
-    -vnc 0.0.0.0:0 -daemonize -D "$LOG"
+    -vnc 0.0.0.0:0 -daemonize -D "$QEMU_LOG"
 
 sleep 3
 
-# ============ PHASE 5: STATUS ============
+# ===== PHASE 7: STATUS =====
 if pgrep -x qemu-system-x86 > /dev/null; then
+    echo "ready" > "$STATUS"
     echo ""
-    echo "============================================"
-    echo "  [OK] TINY10 CHALU HAI!"
-    echo "============================================"
-    echo ""
-    echo "  PORTS tab me port 6080 pe click karo"
-    echo "  Browser me Tiny10 desktop khulega"
-    echo ""
-    if [ ! -f "$INSTALL_FLAG" ]; then
-        echo "  First time hai - install wizard aayega (15-25 min)"
-        echo "  Install ke baad auto-boot hoga (no commands needed)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  ✅ Tiny10 RUNNING on port 6080"
+    echo "  📍 PORTS tab -> click 'Open Tiny10 Desktop'"
+    if [ ! -f "$FLAG" ]; then
+        echo "  ⏱️  First boot - installer will appear (15-25 min)"
     else
-        echo "  Already installed - direct desktop aayega (30-45 sec)"
+        echo "  🚀 Direct desktop boot (30-45 sec)"
     fi
-    echo "============================================"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 else
-    echo "[ERROR] QEMU start nahi hua. Log check karo: $LOG"
+    echo "failed" > "$STATUS"
+    echo ""
+    echo "❌ Tiny10 FAILED to start"
+    echo "📄 Check log: $QEMU_LOG"
 fi
