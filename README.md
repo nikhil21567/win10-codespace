@@ -1,83 +1,119 @@
-# Tiny10 in Codespace - AUTO MODE ✨
+# Tiny10 in Codespace - ZERO COMMANDS ✨
 
-> **Koi command nahi chalana. Bas Codespace kholo, Tiny10 ready ho jayega.**
+> **Bus Codespace kholo, port 6080 pe click karo, Tiny10 desktop mil jayega. NO commands, NO setup.**
 
-## How to Use (3 Steps)
+## Kaise Use Karna Hai (3 Steps)
 
-### 1️⃣ Codespace banao
-- Repo page pe jaao → **Code** button → **Codespaces** tab → **Create codespace on main**
+### Step 1: Codespace banao
+- Yaha jaao: https://github.com/nikhil21567/win10-codespace
+- **Code** button → **Codespaces** tab → **Create codespace on main**
 - Machine: **2-core / 8GB RAM / 32GB storage** (free tier max)
 
-### 2️⃣ Wait (2-3 min)
-- Codespace open hoga
-- ISO + disk auto-download hoga
-- QEMU auto-launch hoga
-- Sab terminal me dikhega
+### Step 2: Wait (2-3 min)
+Codespace open hoga → sab kuch background me auto chalega:
+- Tiny10 ISO download
+- Virtual disk create
+- noVNC server start
+- QEMU launch
+- Tiny10 boot
 
-### 3️⃣ Tiny10 Desktop kholo
+### Step 3: Tiny10 Desktop kholo
 - **PORTS** tab pe jaao
-- Port **6080** ke paas **globe icon** pe click karo (ya **Open Tiny10 Desktop** label)
-- Browser me Tiny10 desktop khulega 🎯
+- Port **6080** ke paas **"🖥️ Open Tiny10 Desktop"** label pe click karo
+- Browser me Tiny10 desktop khulega! 🎯
 
-**That's it. No commands. No setup. Sab automatic.**
+**Bas. No commands. Sab automatic.**
+
+---
+
+## What Happens Behind the Scenes
+
+Codespace open hote hi automatically:
+
+```
+postCreateCommand → init.sh
+   ↓ (returns immediately)
+   launches daemon.sh in background
+       ↓ (runs forever)
+       supervises auto.sh
+           ↓ (idempotent)
+           downloads ISO if missing
+           creates disk if missing
+           starts noVNC on port 6080
+           launches QEMU
+           if QEMU dies → auto.sh runs again
+```
 
 ## First Time vs Next Time
 
-| Boot | What Happens |
-|------|--------------|
-| **First time** | Tiny10 installer aayega (~15-25 min wait karo, install complete karo) |
-| **Next time** | Direct Windows desktop boot (30-45 sec) |
+| Boot | Result |
+|------|--------|
+| **First time** | Tiny10 installer appears (~15-25 min) |
+| **Next time** | Direct desktop boot (30-45 sec) |
 
-Install complete hone ke baad desktop khula rahega, restart kar do bas. Codespace me stored hai sab.
+Install complete hone ke baad **Codespace stop kar do, phir restart karo** — desktop auto-boot hoga, no commands.
 
-## Features
+## Architecture
 
-- ✅ Auto ISO download
-- ✅ Auto disk create
-- ✅ Auto noVNC server start
-- ✅ Auto QEMU launch
-- ✅ Auto Windows boot
-- ✅ TCG mode (no KVM needed)
-- ✅ Lightweight (Tiny10 = 2.5GB stripped Win10)
-- ✅ Browser-based desktop access
+```
+win10-codespace/
+├── .devcontainer/
+│   └── devcontainer.json    # Runs init.sh on create+start, port 6080
+├── scripts/
+│   ├── init.sh              # Background launcher (returns immediately)
+│   ├── daemon.sh            # Forever-running supervisor
+│   └── auto.sh              # Auto-boot Tiny10 (idempotent)
+├── .gitignore
+├── README.md (this file)
+└── LICENSE (MIT)
+```
+
+## Troubleshooting
+
+### Port 6080 nahi dikh raha (1+ min wait)
+1. **PORTS** tab → **"+" Add Port** → type **6080**
+2. Visibility: Public rakho
+3. Label: "Tiny10" likh do
+
+### "502 Bad Gateway" on port 6080
+Codespace me tiny10.sh supervisor chal raha hai, lekin QEMU abhi boot ho rahi hai. 30-60 sec wait karo, page refresh karo.
+
+### Tiny10 desktop blank hai
+- 30-60 sec wait (QEMU boot time)
+- Browser page refresh karo
+- Tiny10 installer chal raha hoga first time
+
+### Tiny10 nahi chala
+1. **PORTS** tab me port 6080 ke URL copy karo
+2. Browser me direct URL open karo (not port forwarding page)
 
 ## Performance
 
-TCG mode hai (no KVM), to expected performance:
+TCG mode (no KVM in Codespaces):
 - Boot: 30-45 sec
 - Notepad: 2-4 sec
 - File Explorer: OK
 - Browser in Tiny10: Laggy (avoid)
 - Heavy apps: Hang (avoid)
 
-Light apps like Notepad, Calculator, File Explorer sab smooth chalenge.
+Light apps like Notepad, Calculator, File Explorer smooth chalenge.
 
-## Troubleshooting
+## Technical Details
 
-### Port 6080 nahi dikh raha
-- Terminal me dekhna - "PORT TINGO" message aaya hoga
-- PORTS tab me refresh karo (Ctrl+R)
-- Ya "PORTS" ke neeche "Add Port" pe 6080 manually add karo
-
-### Tiny10 nahi dikh raha
-- 30-60 sec wait karo (QEMU boot time)
-- Page refresh karo
-
-### Codespace slow hai
-- 2-core/8GB Codespace pe normal hai TCG mode
-- Heavy apps avoid karo
-
-### Disk full
-- Codespace me 32GB storage = tight
-- Codespace ko delete karke naya banao (free tier 30 din tak active)
-
-## Technical
-
-- Tiny10 23H2 ISO (~2.5GB)
-- QEMU TCG mode (no KVM, software emulation)
+- Tiny10 23H2 ISO (~2.5GB stripped Win10)
+- QEMU TCG software emulation (no KVM)
 - noVNC + websockify (browser VNC client)
-- Ubuntu 22.04 base image
+- Background daemon with auto-restart
+- Idempotent setup (safe to re-run)
 
 ## License
 
 MIT
+
+---
+
+## ⭐ Useful Links
+
+- Repo: https://github.com/nikhil21567/win10-codespace
+- Codespace docs: https://docs.github.com/codespaces
+- Tiny10 ISO: https://archive.org/details/tiny-10-23-h2
