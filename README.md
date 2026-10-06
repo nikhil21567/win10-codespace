@@ -1,6 +1,13 @@
 # Tiny10 in Codespace - ZERO COMMANDS ✨
 
-> **Bus Codespace kholo, port 6080 pe click karo, Tiny10 desktop mil jayega. NO commands, NO setup.**
+> **Bus Codespace kholo, port 8006 pe click karo, Tiny10 desktop mil jayega. NO commands, NO setup.**
+
+## Why Port 8006?
+
+Port 8006 = **modern web-based VNC standard** (Proxmox VE style).
+- 5900 = Classic VNC (TightVNC, RealVNC)  
+- 6080 = noVNC v1 (older standard)
+- **8006 = Modern web VNC (HTTPS-friendly, Proxmox-style)** ← using this
 
 ## Kaise Use Karna Hai (3 Steps)
 
@@ -13,13 +20,13 @@
 Codespace open hoga → sab kuch background me auto chalega:
 - Tiny10 ISO download
 - Virtual disk create
-- noVNC server start
+- noVNC server start on port 8006
 - QEMU launch
 - Tiny10 boot
 
 ### Step 3: Tiny10 Desktop kholo
 - **PORTS** tab pe jaao
-- Port **6080** ke paas **"🖥️ Open Tiny10 Desktop"** label pe click karo
+- Port **8006** ke paas **"🖥️ Open Tiny10 Desktop"** label pe click karo
 - Browser me Tiny10 desktop khulega! 🎯
 
 **Bas. No commands. Sab automatic.**
@@ -39,7 +46,7 @@ postCreateCommand → init.sh
            ↓ (idempotent)
            downloads ISO if missing
            creates disk if missing
-           starts noVNC on port 6080
+           starts noVNC on port 8006
            launches QEMU
            if QEMU dies → auto.sh runs again
 ```
@@ -58,7 +65,7 @@ Install complete hone ke baad **Codespace stop kar do, phir restart karo** — d
 ```
 win10-codespace/
 ├── .devcontainer/
-│   └── devcontainer.json    # Runs init.sh on create+start, port 6080
+│   └── devcontainer.json    # Runs init.sh, forwards port 8006
 ├── scripts/
 │   ├── init.sh              # Background launcher (returns immediately)
 │   ├── daemon.sh            # Forever-running supervisor
@@ -70,13 +77,13 @@ win10-codespace/
 
 ## Troubleshooting
 
-### Port 6080 nahi dikh raha (1+ min wait)
-1. **PORTS** tab → **"+" Add Port** → type **6080**
+### Port 8006 nahi dikh raha (1+ min wait)
+1. **PORTS** tab → **"+" Add Port** → type **8006**
 2. Visibility: Public rakho
 3. Label: "Tiny10" likh do
 
-### "502 Bad Gateway" on port 6080
-Codespace me tiny10.sh supervisor chal raha hai, lekin QEMU abhi boot ho rahi hai. 30-60 sec wait karo, page refresh karo.
+### "502 Bad Gateway" on port 8006
+Codespace me supervisor chal raha hai, lekin QEMU abhi boot ho rahi hai. 30-60 sec wait karo, page refresh karo.
 
 ### Tiny10 desktop blank hai
 - 30-60 sec wait (QEMU boot time)
@@ -84,7 +91,7 @@ Codespace me tiny10.sh supervisor chal raha hai, lekin QEMU abhi boot ho rahi ha
 - Tiny10 installer chal raha hoga first time
 
 ### Tiny10 nahi chala
-1. **PORTS** tab me port 6080 ke URL copy karo
+1. **PORTS** tab me port 8006 ke URL copy karo
 2. Browser me direct URL open karo (not port forwarding page)
 
 ## Performance
@@ -102,7 +109,7 @@ Light apps like Notepad, Calculator, File Explorer smooth chalenge.
 
 - Tiny10 23H2 ISO (~2.5GB stripped Win10)
 - QEMU TCG software emulation (no KVM)
-- noVNC + websockify (browser VNC client)
+- noVNC + websockify on **port 8006** (modern standard)
 - Background daemon with auto-restart
 - Idempotent setup (safe to re-run)
 
