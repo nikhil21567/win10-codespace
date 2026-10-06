@@ -3,7 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "forwardPorts": [6080],
+  "forwardPorts": [8006],
   "postCreateCommand": "bash scripts/init.sh",
   "postStartCommand": "bash scripts/init.sh",
   "customizations": {
@@ -13,7 +13,7 @@
         {
           "name": "Tiny10",
           "label": "🖥️ Open Tiny10 Desktop",
-          "port": 6080,
+          "port": 8006,
           "visibility": "public",
           "protocol": "http"
         }
