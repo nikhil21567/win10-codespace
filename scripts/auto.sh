@@ -44,9 +44,9 @@ pkill -x qemu-system-x86 2>/dev/null
 pkill -f websockify 2>/dev/null
 sleep 1
 
-# ===== PHASE 4: START noVNC =====
-echo "[$(date)] Starting noVNC on port 6080..."
-websockify --web=/usr/share/novnc 6080 localhost:5900 > "$NOVNC_LOG" 2>&1 &
+# ===== PHASE 4: START noVNC on port 8006 =====
+echo "[$(date)] Starting noVNC on port 8006..."
+websockify --web=/usr/share/novnc 8006 localhost:5900 > "$NOVNC_LOG" 2>&1 &
 sleep 2
 
 # ===== PHASE 5: BOOT MODE =====
@@ -85,7 +85,7 @@ if pgrep -x qemu-system-x86 > /dev/null; then
     echo "ready" > "$STATUS"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  ✅ Tiny10 RUNNING on port 6080"
+    echo "  ✅ Tiny10 RUNNING on port 8006"
     echo "  📍 PORTS tab -> click 'Open Tiny10 Desktop'"
     if [ ! -f "$FLAG" ]; then
         echo "  ⏱️  First boot - installer will appear (15-25 min)"
